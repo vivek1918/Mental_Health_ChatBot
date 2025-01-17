@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mental Health Chatbot</title>
+    <style>
+        #chatlogs {
+            border: 1px solid #ccc;
+            padding: 10px;
+            height: 300px;
+            overflow-y: scroll;
+            margin-bottom: 10px;
+        }
+        #chatlogs img {
+            max-width: 100%;
+            height: auto;
+            margin-top: 10px;
+        }
+        #chatlogs a {
+            color: blue;
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <h1>Mental Health Chatbot</h1>
+    <div id="chatbox">
+        <div id="chatlogs"></div>
+        <input type="text" id="userInput" placeholder="Type your message here...">
+        <button onclick="sendMessage()">Send</button>
+    </div>
+
+    <p>To log your mood, type: <code>/log_mood &lt;mood&gt;</code></p>
+    <p>To get mood insights, type: <code>/mood_insights</code></p>
+    <p>To try a breathing exercise, type: <code>/breathing_exercise</code></p>
+    <p>To try a mindfulness exercise, type: <code>/mindfulness</code></p>
+    <p>To try a CBT technique, type: <code>/cbt_technique</code></p>
+
+    <script>
+        async function sendMessage() {
+            const userInput = document.getElementById('userInput').value;
+            const response = await fetch('/chat', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ message: userInput }),
+            });
+            const data = await response.text();  // Use .text() to get the HTML response
+            const chatlogs = document.getElementById('chatlogs');
+            chatlogs.innerHTML += `<p><strong>You:</strong> ${userInput}</p>`;
+            chatlogs.innerHTML += `<p><strong>Bot:</strong> ${data}</p>`;  // Render as HTML
+            document.getElementById('userInput').value = '';
+            chatlogs.scrollTop = chatlogs.scrollHeight;  // Auto-scroll to the latest message
+        }
+    </script>
+</body>
+</html>
