@@ -15,7 +15,7 @@ class MentalHealthChatbot:
                 "title": "Deep Breathing Exercise",
                 "description": "Take a deep breath in through your nose for 4 seconds, hold for 4 seconds, and exhale through your mouth for 6 seconds. Repeat for 5 minutes.",
                 "visual": "https://i.imgur.com/xyz123.gif",  # Replace with a real image URL
-                "video_link": "https://youtu.be/QKRiPoTZ2Ss?si=uOIhwd98D66XBzAv"  # Replace with a real video URL
+                "video_link": "https://youtu.be/X4Y-py3Axyk?si=ZHomRCeT6I2sOm6H"  # Replace with a real video URL
             },
             "mindfulness": {
                 "title": "5-Minute Mindfulness Exercise",
@@ -113,6 +113,15 @@ class MentalHealthChatbot:
         else:
             return "neutral"
 
+    def get_motivational_quote(self, user_input):
+        """
+        Provide a personalized motivational quote based on the user's mood.
+        """
+        sentiment = self.detect_sentiment(user_input)
+        import random
+        quote = random.choice(self.quotes.get(sentiment, ["Stay strong and keep going!"]))
+        return f"Here's a motivational quote for you:\n\n{quote}"
+
     def generate_response(self, user_input, user_id):
         """
         Generate a response based on the user's input.
@@ -120,20 +129,35 @@ class MentalHealthChatbot:
         # Check if the user wants to log their mood
         if user_input.startswith("/log_mood"):
             mood = user_input.split(" ", 1)[1].strip()
-            return self.log_mood(user_id, mood)
+            return {
+                "response": self.log_mood(user_id, mood),
+                "sentiment": "neutral"  # Default sentiment for mood logging
+            }
 
         # Check if the user wants mood insights
         if user_input.strip().lower() == "/mood_insights":
-            return self.get_mood_insights(user_id)
+            return {
+                "response": self.get_mood_insights(user_id),
+                "sentiment": "neutral"  # Default sentiment for mood insights
+            }
 
         # Check if the user wants an exercise
         if user_input.strip().lower() == "/breathing_exercise":
-            return self.get_exercise("breathing")
+            return {
+                "response": self.get_exercise("breathing"),
+                "sentiment": "neutral"  # Default sentiment for exercises
+            }
         if user_input.strip().lower() == "/mindfulness":
-            return self.get_exercise("mindfulness")
+            return {
+                "response": self.get_exercise("mindfulness"),
+                "sentiment": "neutral"  # Default sentiment for exercises
+            }
         if user_input.strip().lower() == "/cbt_technique":
-            return self.get_exercise("cbt")
-        
+            return {
+                "response": self.get_exercise("cbt"),
+                "sentiment": "neutral"  # Default sentiment for exercises
+            }
+
         # Detect sentiment
         sentiment = self.detect_sentiment(user_input)
 
@@ -165,5 +189,8 @@ class MentalHealthChatbot:
             model="mixtral-8x7b-32768",  # Use the appropriate model
         )
 
-        # Extract and return the response
-        return response.choices[0].message.content
+        # Extract the response and include the sentiment
+        return {
+            "response": response.choices[0].message.content,
+            "sentiment": sentiment
+        }

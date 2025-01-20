@@ -5,6 +5,48 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mental Health Chatbot</title>
     <style>
+        /* Keyframes for background color animations */
+        @keyframes fadeBackgroundPositive {
+            0% { background-color: #e8f5e9; }
+            50% { background-color: #c8e6c9; }
+            100% { background-color: #e8f5e9; }
+        }
+
+        @keyframes fadeBackgroundNegative {
+            0% { background-color: #ffebee; }
+            50% { background-color: #ffcdd2; }
+            100% { background-color: #ffebee; }
+        }
+
+        @keyframes fadeBackgroundNeutral {
+            0% { background-color: #e3f2fd; }
+            50% { background-color: #bbdefb; }
+            100% { background-color: #e3f2fd; }
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            transition: background-color 0.5s ease, color 0.5s ease;
+        }
+
+        .positive-theme {
+            background-color: #e8f5e9;  /* Light green */
+            color: #2e7d32;  /* Dark green */
+            animation: fadeBackgroundPositive 10s infinite;  /* Fading animation */
+        }
+
+        .negative-theme {
+            background-color: #ffebee;  /* Light red */
+            color: #c62828;  /* Dark red */
+            animation: fadeBackgroundNegative 10s infinite;  /* Fading animation */
+        }
+
+        .neutral-theme {
+            background-color: #e3f2fd;  /* Light blue */
+            color: #1565c0;  /* Dark blue */
+            animation: fadeBackgroundNeutral 10s infinite;  /* Fading animation */
+        }
+
         #chatlogs {
             border: 1px solid #ccc;
             padding: 10px;
@@ -12,18 +54,20 @@
             overflow-y: scroll;
             margin-bottom: 10px;
         }
+
         #chatlogs img {
             max-width: 100%;
             height: auto;
             margin-top: 10px;
         }
+
         #chatlogs a {
             color: blue;
             text-decoration: underline;
         }
     </style>
 </head>
-<body>
+<body class="neutral-theme">
     <h1>Mental Health Chatbot</h1>
     <div id="chatbox">
         <div id="chatlogs"></div>
@@ -36,6 +80,7 @@
     <p>To try a breathing exercise, type: <code>/breathing_exercise</code></p>
     <p>To try a mindfulness exercise, type: <code>/mindfulness</code></p>
     <p>To try a CBT technique, type: <code>/cbt_technique</code></p>
+    <p>To get a motivational quote, type: <code>/motivate_me</code></p>
 
     <script>
         async function sendMessage() {
@@ -47,10 +92,16 @@
                 },
                 body: JSON.stringify({ message: userInput }),
             });
-            const data = await response.text();  // Use .text() to get the HTML response
+            const data = await response.json();  // Parse the JSON response
             const chatlogs = document.getElementById('chatlogs');
             chatlogs.innerHTML += `<p><strong>You:</strong> ${userInput}</p>`;
-            chatlogs.innerHTML += `<p><strong>Bot:</strong> ${data}</p>`;  // Render as HTML
+            chatlogs.innerHTML += `<p><strong>Bot:</strong> ${data.response}</p>`;
+
+            // Update the UI based on sentiment
+            const body = document.body;
+            body.classList.remove("positive-theme", "negative-theme", "neutral-theme");
+            body.classList.add(`${data.sentiment}-theme`);
+
             document.getElementById('userInput').value = '';
             chatlogs.scrollTop = chatlogs.scrollHeight;  // Auto-scroll to the latest message
         }

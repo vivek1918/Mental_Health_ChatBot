@@ -3,6 +3,7 @@ from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from app.chatbot import MentalHealthChatbot
 from dotenv import load_dotenv
+from fastapi.responses import JSONResponse
 import os
 
 load_dotenv()  # Load environment variables from .env file
@@ -16,7 +17,7 @@ chatbot = MentalHealthChatbot(api_key=os.getenv("GROQ_API_KEY"))
 async def read_root(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
 
-@app.post("/chat", response_class=HTMLResponse)
+@app.post("/chat")
 async def chat(request: Request):
     data = await request.json()
     user_message = data.get("message")
