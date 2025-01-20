@@ -5,25 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mental Health Chatbot</title>
     <style>
-        /* Keyframes for background color animations */
-        @keyframes fadeBackgroundPositive {
-            0% { background-color: #e8f5e9; }
-            50% { background-color: #c8e6c9; }
-            100% { background-color: #e8f5e9; }
-        }
-
-        @keyframes fadeBackgroundNegative {
-            0% { background-color: #ffebee; }
-            50% { background-color: #ffcdd2; }
-            100% { background-color: #ffebee; }
-        }
-
-        @keyframes fadeBackgroundNeutral {
-            0% { background-color: #e3f2fd; }
-            50% { background-color: #bbdefb; }
-            100% { background-color: #e3f2fd; }
-        }
-
+        /* Existing styles for chatbot UI */
         body {
             font-family: Arial, sans-serif;
             transition: background-color 0.5s ease, color 0.5s ease;
@@ -65,6 +47,36 @@
             color: blue;
             text-decoration: underline;
         }
+
+        /* Game-specific styles */
+        #game-container {
+            display: none;
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            background-color: #f9f9f9;
+        }
+
+        .memory-game {
+            display: grid;
+            grid-template-columns: repeat(4, 100px);
+            gap: 10px;
+        }
+
+        .memory-card {
+            width: 100px;
+            height: 100px;
+            background-color: #ddd;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        .memory-card.flipped {
+            background-color: #fff;
+        }
     </style>
 </head>
 <body class="neutral-theme">
@@ -75,14 +87,21 @@
         <button onclick="sendMessage()">Send</button>
     </div>
 
+    <div id="game-container">
+        <h2 id="game-title"></h2>
+        <div id="game-content"></div>
+    </div>
+
     <p>To log your mood, type: <code>/log_mood &lt;mood&gt;</code></p>
     <p>To get mood insights, type: <code>/mood_insights</code></p>
     <p>To try a breathing exercise, type: <code>/breathing_exercise</code></p>
     <p>To try a mindfulness exercise, type: <code>/mindfulness</code></p>
     <p>To try a CBT technique, type: <code>/cbt_technique</code></p>
     <p>To get a motivational quote, type: <code>/motivate_me</code></p>
+    <p>To play a game, type: <code>/play_game</code></p>
 
     <script>
+        // Chatbot logic
         async function sendMessage() {
             const userInput = document.getElementById('userInput').value;
             const response = await fetch('/chat', {
@@ -102,8 +121,80 @@
             body.classList.remove("positive-theme", "negative-theme", "neutral-theme");
             body.classList.add(`${data.sentiment}-theme`);
 
+            // Start a game if recommended
+            if (data.game) {
+                startGame(data.game);
+            }
+
             document.getElementById('userInput').value = '';
             chatlogs.scrollTop = chatlogs.scrollHeight;  // Auto-scroll to the latest message
+        }
+
+        // Game logic
+        function startGame(gameName) {
+            const gameContainer = document.getElementById('game-container');
+            const gameContent = document.getElementById('game-content');
+            gameContainer.style.display = 'block';
+            document.getElementById('game-title').textContent = gameName;
+
+            if (gameName === "Memory Match") {
+                gameContent.innerHTML = `
+                    <div class="memory-game">
+                        <div class="memory-card" data-value="1">1</div>
+                        <div class="memory-card" data-value="2">2</div>
+                        <div class="memory-card" data-value="3">3</div>
+                        <div class="memory-card" data-value="4">4</div>
+                        <div class="memory-card" data-value="1">1</div>
+                        <div class="memory-card" data-value="2">2</div>
+                        <div class="memory-card" data-value="3">3</div>
+                        <div class="memory-card" data-value="4">4</div>
+                    </div>
+                `;
+
+                // Add event listeners for memory cards
+                const cards = document.querySelectorAll('.memory-card');
+                let flippedCards = [];
+                cards.forEach(card => {
+                    card.addEventListener('click', () => {
+                        card.classList.add('flipped');
+                        flippedCards.push(card);
+                        if (flippedCards.length === 2) {
+                            checkMatch(flippedCards);
+                            flippedCards = [];
+                        }
+                    });
+                });
+            } else if (gameName === "Word Search") {
+                gameContent.innerHTML = `
+                    <p>Word Search Game Coming Soon!</p>
+                `;
+            } else if (gameName === "Breathing Exercise") {
+                gameContent.innerHTML = `
+                    <p>Breathing Exercise Game Coming Soon!</p>
+                `;
+            } else if (gameName === "Relaxing Coloring") {
+                gameContent.innerHTML = `
+                    <p>Relaxing Coloring Game Coming Soon!</p>
+                `;
+            } else if (gameName === "Puzzle Game") {
+                gameContent.innerHTML = `
+                    <p>Puzzle Game Coming Soon!</p>
+                `;
+            } else if (gameName === "Trivia Quiz") {
+                gameContent.innerHTML = `
+                    <p>Trivia Quiz Game Coming Soon!</p>
+                `;
+            }
+        }
+
+        function checkMatch(cards) {
+            if (cards[0].dataset.value === cards[1].dataset.value) {
+                cards.forEach(card => card.style.backgroundColor = '#a5d6a7');  // Green for match
+            } else {
+                setTimeout(() => {
+                    cards.forEach(card => card.classList.remove('flipped'));
+                }, 1000);
+            }
         }
     </script>
 </body>

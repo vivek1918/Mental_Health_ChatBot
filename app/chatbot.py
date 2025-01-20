@@ -10,6 +10,21 @@ class MentalHealthChatbot:
         self.client = Groq(api_key=api_key)
         self.setup_database()
 
+        self.games = {
+            "positive": [
+                {"name": "Memory Match", "description": "Match pairs of cards to improve memory."},
+                {"name": "Word Search", "description": "Find hidden words in a grid to boost focus."}
+            ],
+            "negative": [
+                {"name": "Breathing Exercise", "description": "Follow visual cues to practice deep breathing."},
+                {"name": "Relaxing Coloring", "description": "Color simple shapes to relax and unwind."}
+            ],
+            "neutral": [
+                {"name": "Puzzle Game", "description": "Solve puzzles to improve problem-solving skills."},
+                {"name": "Trivia Quiz", "description": "Answer fun trivia questions to stay engaged."}
+            ]
+        }
+
         self.exercises = {
             "breathing": {
                 "title": "Deep Breathing Exercise",
@@ -30,6 +45,16 @@ class MentalHealthChatbot:
                 "video_link": "https://www.youtube.com/watch?v=example_cbt"  # Replace with a real video URL
             }
         }
+
+    def get_recommended_game(self, sentiment):
+        """
+        Recommend a game based on the user's mood.
+        """
+        import random
+        games = self.games.get(sentiment, [])
+        if games:
+            return random.choice(games)
+        return None
     
     def get_exercise(self, exercise_type):
         """
@@ -157,6 +182,22 @@ class MentalHealthChatbot:
                 "response": self.get_exercise("cbt"),
                 "sentiment": "neutral"  # Default sentiment for exercises
             }
+        
+        if user_input.strip().lower() == "/play_game":
+            sentiment = self.detect_sentiment(user_input)
+            game = self.get_recommended_game(sentiment)
+            if game:
+                return {
+                    "response": f"Let's play a game to help you feel better! Try this: {game['name']} - {game['description']}",
+                    "sentiment": sentiment,
+                    "game": game["name"]
+                }
+            else:
+                return {
+                    "response": "No games available for your current mood. Try logging your mood or doing an exercise!",
+                    "sentiment": sentiment
+                }
+
 
         # Detect sentiment
         sentiment = self.detect_sentiment(user_input)
